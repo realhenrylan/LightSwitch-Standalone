@@ -1,18 +1,89 @@
 #include "pch.h"
 #include "TrayIcon.h"
+
+// 用 32bpp DIBSection 绘制带 Alpha 通道的图标，兼容 Windows 10/11
 static HICON CreateColorBlockIcon(bool light) {
-    constexpr int S=16; COLORREF c = light ? RGB(255,200,50) : RGB(50,50,120);
-    HDC sdc = GetDC(nullptr), mdc = CreateCompatibleDC(sdc);
-    if (!mdc) { ReleaseDC(nullptr,sdc); return nullptr; }
-    HBITMAP hCol = CreateCompatibleBitmap(sdc,S,S), hMsk = CreateBitmap(S,S,1,1,nullptr);
-    if (!hCol||!hMsk) { if(hCol)DeleteObject(hCol); if(hMsk)DeleteObject(hMsk); DeleteDC(mdc); ReleaseDC(nullptr,sdc); return nullptr; }
-    HGDIOBJ o = SelectObject(mdc,hCol); RECT rc={0,0,S,S}; HBRUSH br=CreateSolidBrush(c); FillRect(mdc,&rc,br); DeleteObject(br);
-    HPEN p=CreatePen(PS_SOLID,1,RGB(128,128,128)); SelectObject(mdc,p); SelectObject(mdc,GetStockObject(NULL_BRUSH)); Rectangle(mdc,0,0,S,S); DeleteObject(p);
-    SelectObject(mdc,o);
-    HDC mdc2 = CreateCompatibleDC(sdc); HGDIOBJ o2 = SelectObject(mdc2,hMsk); FillRect(mdc2,&rc,(HBRUSH)GetStockObject(WHITE_BRUSH)); SelectObject(mdc2,o2); DeleteDC(mdc2);
-    ICONINFO ii={}; ii.fIcon=TRUE; ii.hbmMask=hMsk; ii.hbmColor=hCol;
+    constexpr int S = 32;
+    HDC sdc = GetDC(nullptr);
+    if (!sdc) return nullptr;
+
+    // 创建 32bpp 位图（含 Alpha 通道）
+    BITMAPINFO bmi = {};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = S;
+    bmi.bmiHeader.biHeight = -S;  // 负值 = 从上到下（非翻转）
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    void* bits = nullptr;
+    HBITMAP hBitmap = CreateDIBSection(sdc, &bmi, DIB_RGB_COLORS, &bits, nullptr, 0);
+    if (!hBitmap) { ReleaseDC(nullptr, sdc); return nullptr; }
+
+    // 直接操作像素：BGRA 格式
+    auto* p = static_cast<unsigned char*>(bits);
+    for (int y = 0; y < S; ++y) {
+        for (int x = 0; x < S; ++x) {
+            int idx = (y * S + x) * 4;
+            int dx = x - S/2, dy = y - S/2;
+            int dist2 = dx*dx + dy*dy;
+            int r2 = (S/2 - 1) * (S/2 - 1);
+
+            if (dist2 >= r2) {
+                // 圆形外部：全透明
+                p[idx+0] = 0;   // B
+                p[idx+1] = 0;   // G
+                p[idx+2] = 0;   // R
+                p[idx+3] = 0;   // A
+            } else {
+                uint8_t a = 255;
+                // 抗锯齿边缘（羽化 1 像素）
+                if (dist2 >= (S/2 - 3) * (S/2 - 3)) {
+                    a = (uint8_t)(255.0f * ((S/2 - 1) - std::sqrt((float)dist2)));
+                }
+                if (light) {
+                    // 亮色：太阳暖黄 + 内圈高光
+                    int inner = (S/2 - 6) * (S/2 - 6);
+                    if (dist2 < inner) {
+                        p[idx+0] = 30;  p[idx+1] = 170; p[idx+2] = 255;  // 亮黄色
+                    } else {
+                        p[idx+0] = 50;  p[idx+1] = 200; p[idx+2] = 255;
+                    }
+                } else {
+                    // 暗色：深蓝 + 内圈亮蓝
+                    int inner = (S/2 - 6) * (S/2 - 6);
+                    if (dist2 < inner) {
+                        p[idx+0] = 150; p[idx+1] = 100; p[idx+2] = 70;   // 亮蓝
+                    } else {
+                        p[idx+0] = 120; p[idx+1] = 50;  p[idx+2] = 50;   // 深蓝
+                    }
+                }
+                p[idx+3] = a;
+            }
+        }
+    }
+
+    // 从位图创建图标
+    HDC mdc = CreateCompatibleDC(sdc);
+    if (!mdc) { DeleteObject(hBitmap); ReleaseDC(nullptr, sdc); return nullptr; }
+
+    // 遮罩：全白（透明度由 DIBSection 的 Alpha 通道控制）
+    HBITMAP hMsk = CreateBitmap(S, S, 1, 1, nullptr);
+    if (!hMsk) { DeleteDC(mdc); DeleteObject(hBitmap); ReleaseDC(nullptr, sdc); return nullptr; }
+    HGDIOBJ o = SelectObject(mdc, hMsk);
+    RECT rc = {0, 0, S, S};
+    FillRect(mdc, &rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+    SelectObject(mdc, o); DeleteDC(mdc);
+
+    ICONINFO ii = {};
+    ii.fIcon = TRUE;
+    ii.hbmMask = hMsk;
+    ii.hbmColor = hBitmap;
     HICON hi = CreateIconIndirect(&ii);
-    DeleteObject(hCol); DeleteObject(hMsk); DeleteDC(mdc); ReleaseDC(nullptr,sdc);
+
+    DeleteObject(hBitmap);
+    DeleteObject(hMsk);
+    ReleaseDC(nullptr, sdc);
     return hi;
 }
 TrayIcon::TrayIcon() {}
