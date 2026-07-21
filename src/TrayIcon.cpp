@@ -93,12 +93,16 @@ bool TrayIcon::Create(HWND h,HINSTANCE hi,UINT id,UINT cb,LPCWSTR tip,bool light
     m_hwnd=h; m_hInst=hi; m_uID=id; m_uCallbackMsg=cb;
     m_hIconLight=CreateColorBlockIcon(true); m_hIconDark=CreateColorBlockIcon(false);
     m_iconNeedsDestroy=true;
+    if(!m_hIconLight||!m_hIconDark) return false;
     ZeroMemory(&m_nid,sizeof(m_nid)); m_nid.cbSize=sizeof(m_nid);
-    m_nid.hWnd=h; m_nid.uID=id; m_nid.uFlags=NIF_ICON|NIF_MESSAGE|NIF_TIP|NIF_SHOWTIP;
+    m_nid.hWnd=h; m_nid.uID=id; m_nid.uFlags=NIF_ICON|NIF_MESSAGE|NIF_TIP;
     m_nid.uCallbackMessage=cb; m_nid.hIcon=light?m_hIconLight:m_hIconDark;
-    wcsncpy_s(m_nid.szTip,tip,_TRUNCATE); m_nid.uVersion=NOTIFYICON_VERSION_4;
+    wcsncpy_s(m_nid.szTip,tip,_TRUNCATE);
     if(!Shell_NotifyIconW(NIM_ADD,&m_nid)) return false;
-    Shell_NotifyIconW(NIM_SETVERSION,&m_nid); m_created=true; return true;
+    // 尝试设置 V4 版本，失败不影响基本功能
+    m_nid.uVersion=NOTIFYICON_VERSION_4;
+    Shell_NotifyIconW(NIM_SETVERSION,&m_nid);
+    m_created=true; return true;
 }
 void TrayIcon::Destroy() {
     if(m_created) { Shell_NotifyIconW(NIM_DELETE,&m_nid); m_created=false; }

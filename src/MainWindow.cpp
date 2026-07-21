@@ -116,10 +116,16 @@ LRESULT CALLBACK MainWindow::WndProc(HWND h,UINT m,WPARAM w,LPARAM l) {
 }
 LRESULT MainWindow::HandleMessage(HWND h,UINT msg,WPARAM w,LPARAM l) {
     switch(msg) {
-        case WM_TRAYICON:
-            if(l==WM_LBUTTONDBLCLK) IsVisible()?Hide():Show();
-            else if(l==WM_RBUTTONUP) m_trayIcon.ShowContextMenu(h);
+        case WM_TRAYICON: {
+            UINT trayMsg = (UINT)l;
+            // 兼容旧版 NOTIFYICON_VERSION（lParam=回调消息, 需从消息队列取实际消息）
+            if (trayMsg == WM_TRAYICON || HIWORD(l) > 0) trayMsg = WM_LBUTTONDOWN;
+            if (trayMsg == WM_LBUTTONUP || trayMsg == WM_LBUTTONDBLCLK)
+                IsVisible() ? Hide() : Show();
+            else if (trayMsg == WM_RBUTTONUP || trayMsg == WM_CONTEXTMENU)
+                m_trayIcon.ShowContextMenu(h);
             return 0;
+        }
         case WM_COMMAND: {
             WORD id=LOWORD(w), code=HIWORD(w);
             switch(id) {
