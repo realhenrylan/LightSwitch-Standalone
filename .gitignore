@@ -1,0 +1,16 @@
+# 构建输出
+x64/
+Debug/
+Release/
+*.obj
+*.log
+*.tlog
+*.lastbuildstate
+
+# 运行时生成
+config.json
+
+# VS 用户文件
+*.suo
+*.user
+*.vs/

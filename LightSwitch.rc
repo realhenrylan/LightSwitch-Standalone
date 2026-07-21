@@ -1,0 +1,46 @@
+// LightSwitch Standalone — 资源文件
+// 嵌入图标、版本信息
+
+#include "src/resource.h"
+#define APSTUDIO_READONLY_SYMBOLS
+#include "winres.h"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+
+IDI_LIGHTSWITCH          ICON      "resources\LightSwitch.ico"
+IDI_LIGHTSWITCH_LIGHT    ICON      "resources\LightSwitch.ico"
+IDI_LIGHTSWITCH_DARK     ICON      "resources\LightSwitch.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+FILEFLAGS       VS_FF_DEBUG
+#else
+FILEFLAGS       0x0L
+#endif
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName",      "LightSwitch Standalone"
+            VALUE "FileDescription",  "LightSwitch — Windows 自动深浅色主题切换"
+            VALUE "FileVersion",      "1.0.0.0"
+            VALUE "InternalName",     "LightSwitch.exe"
+            VALUE "LegalCopyright",   "基于 Microsoft PowerToys (MIT) 源码构建"
+            VALUE "OriginalFilename", "LightSwitch.exe"
+            VALUE "ProductName",      "LightSwitch Standalone"
+            VALUE "ProductVersion",   "1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0804, 1200
+    END
+END
