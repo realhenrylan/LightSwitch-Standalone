@@ -7,6 +7,7 @@
 - **重写 README.md** — 基于项目实际状态，包含完整的功能说明、架构设计、使用指南、构建步骤、对比表格和技术细节
 - **推送所有修改** — 提交并推送 8 个修复文件 + CHANGELOG 到远程仓库
 - **创建 GitHub Release v1.0.0** — 发布初始版本，附 `LightSwitch.exe` (352 KB) 下载
+- **README 新增 AI agent 一键安装方法** — 提供提示词，让 agent 自动完成关 Defender → 下载 → 重新开启的流程
 
 ### ✨ 变更
 
