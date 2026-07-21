@@ -29,7 +29,7 @@ static void WriteFile(const std::wstring& path, const std::wstring& content) {
     fs.write(utf8.data(), len);
 }
 std::wstring ConfigManager::ExtractString(const std::wstring& json, const std::wstring& key, const std::wstring& def) {
-    std::wsearch = L"\"" + key + L"\"";
+    std::wstring search = L"\"" + key + L"\"";
     size_t pos = json.find(search);
     if (pos == std::wstring::npos) return def;
     pos = json.find(L':', pos + search.length());

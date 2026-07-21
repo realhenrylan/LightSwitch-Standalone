@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### 2026-07-21 — README 重写 & 推送
+
+- **重写 README.md** — 基于项目实际状态，包含完整的功能说明、架构设计、使用指南、构建步骤、对比表格和技术细节
+- **推送所有修改** — 提交并推送 8 个修复文件 + CHANGELOG 到远程仓库
+
 ### ✨ 变更
 
 - **PLAN.md v2 重写** — 基于 [PowerToys](https://github.com/microsoft/PowerToys) 源码直接复用策略重新设计方案
@@ -55,6 +60,17 @@
 - **修复 5** — `main.cpp` 复用 `ThemeHelper.h` 中已定义的 `NIGHT_LIGHT_REGISTRY_PATH` 常量，消除路径硬编码重复
 - **修复 6** — `ConfigManager.cpp` JSON 读写改用 `WideCharToMultiByte` / `MultiByteToWideChar` 标准 UTF-8 编解码，支持非 ASCII 配置值
 
+### 2026-07-21 — 编译修复（首次成功编译）
+
+- **修复 7** — `ConfigManager.cpp` 修复 `std::wsearch` 拼写错误 → `std::wstring search`
+- **修复 8** — `SettingsObserver.h` 修复 C++17 不兼容的 `std::unordered_set::contains()` → `find() != end()`
+- **修复 9** — `pch.h` 为 `_CRT_SECURE_NO_WARNINGS` 添加 `#ifndef` 防重定义保护
+- **修复 10** — `LightSwitch.rc` 版本信息字符串改用 ASCII（RC 编译器不兼容 UTF-8 中文），语言改为 `LANG_ENGLISH`
+- **修复 11** — `resources/LightSwitch.ico` 从 Base64 文本解码为正确的 ICO 二进制文件（32×32, 32bpp）
+- **修复 12** — 构建脚本添加缺失的链接库 `gdi32.lib`（GDI 绑图操作）和 `ole32.lib`（COM 初始化）
+- **更新 1** — `LightSwitch.vcxproj` 工具集从 `v143`（VS 2022）更新为 `v180`（匹配本机 VS 2026），添加 `ItemDefinitionGroup` 配置（C++17、`/utf-8`、`/MT`、链接库列表）
+- **更新 2** — `build.bat` 重写为 `cl.exe` + `link.exe` 直接编译方式（绕过 MSBuild `VCTargetsPath` 环境变量问题），自动通过 `vswhere` 查找 Visual Studio 安装路径
+
 ### 已实现功能
 
 - [x] 固定时间段切换（08:00 亮 / 20:00 暗，可配置）
@@ -68,3 +84,4 @@
 - [x] 手动覆盖自动恢复
 - [x] 配置文件热重载
 - [x] 系统托盘常驻
+- [x] 首次编译成功 — 输出 x64/Release/LightSwitch.exe (360 KB)
