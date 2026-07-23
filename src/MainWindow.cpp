@@ -117,9 +117,10 @@ LRESULT CALLBACK MainWindow::WndProc(HWND h,UINT m,WPARAM w,LPARAM l) {
 LRESULT MainWindow::HandleMessage(HWND h,UINT msg,WPARAM w,LPARAM l) {
     switch(msg) {
         case WM_TRAYICON: {
-            UINT trayMsg = (UINT)l;
-            // 兼容旧版 NOTIFYICON_VERSION（lParam=回调消息, 需从消息队列取实际消息）
-            if (trayMsg == WM_TRAYICON || HIWORD(l) > 0) trayMsg = WM_LBUTTONDOWN;
+            // V4: LOWORD(lParam)=鼠标消息, HIWORD(lParam)=图标ID
+            // 旧版: lParam=鼠标消息, wParam=图标ID
+            // LOWORD 在两种版本下均正确提取鼠标消息，无需为 NIM_SETVERSION 失败额外分支
+            UINT trayMsg = LOWORD(l);
             if (trayMsg == WM_LBUTTONUP || trayMsg == WM_LBUTTONDBLCLK)
                 IsVisible() ? Hide() : Show();
             else if (trayMsg == WM_RBUTTONUP || trayMsg == WM_CONTEXTMENU)

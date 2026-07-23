@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### 2026-07-23 — 修复托盘图标点击无反应（根因修复）
+
+- **根因** — `NOTIFYICON_VERSION_4` 下 lParam 格式为 `MAKELPARAM(鼠标消息, 图标ID)`，鼠标消息在 `LOWORD(lParam)` 中，`HIWORD(lParam)` 是图标 ID。代码使用 `(UINT)l` 整体比较，图标 ID 为 1 时 `0x00010202 != WM_LBUTTONUP(0x0202)`，匹配失败
+- **修复** — 将 `(UINT)l` 改为 `LOWORD(l)`，兼容 V4 和旧版两种消息格式（旧版 lParam 低字同样是鼠标消息），无需为 `NIM_SETVERSION` 失败额外分支
+
+### 2026-07-21 — 修复托盘图标点击无反应（首次尝试，未解决）
+
+- **修复** — 移除 `WM_TRAYICON` 处理中错误的兼容性逻辑 `HIWORD(l) > 0`，该条件在 V4 下 `HIWORD` 是图标 ID（值为 1），恒为真，导致所有事件被替换为 `WM_LBUTTONDOWN` 而被忽略。但 `(UINT)l` 的提取方式在 V4 下仍然不正确，问题未彻底解决
+
 ### 2026-07-21 — README 重写 & 推送
 
 - **重写 README.md** — 基于项目实际状态，包含完整的功能说明、架构设计、使用指南、构建步骤、对比表格和技术细节
