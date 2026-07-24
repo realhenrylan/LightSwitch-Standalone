@@ -29,10 +29,6 @@
 
 > 第一次运行会自动生成 `config.json`。
 
-</details>
-
-> **安全说明**：此方法仅临时关闭实时监控（不影响其他安全功能），下载完成后立即重新开启。本程序为开源项目，源码见 [GitHub](https://github.com/realhenrylan/LightSwitch-Standalone)。
-
 ### 从源码编译
 
 #### 前置要求
