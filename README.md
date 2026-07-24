@@ -29,40 +29,6 @@
 
 > 第一次运行会自动生成 `config.json`。
 
-### AI agent 一键安装（绕过 SmartScreen 警告）
-
-将以下提示词复制给支持代码执行的 AI agent（如 ChatGPT、Claude、Copilot 等），它会自动完成「临时关 Defender → 下载到桌面 → 重新开 Defender」的流程：
-
-<details>
-<summary>📋 点击复制提示词</summary>
-
-```
-请帮我用以下步骤安装 LightSwitch Standalone：
-
-## 步骤
-
-### 1. 暂时禁用 Windows Defender 实时保护
-```powershell
-Set-MpPreference -DisableRealtimeMonitoring $true
-```
-
-### 2. 从 GitHub 下载到桌面
-```powershell
-$url = "https://github.com/realhenrylan/LightSwitch-Standalone/releases/download/v1.0.0/LightSwitch.exe"
-$dest = "$env:USERPROFILE\Desktop\LightSwitch.exe"
-Invoke-WebRequest -Uri $url -OutFile $dest
-```
-
-### 3. 重新启用 Windows Defender 实时保护
-```powershell
-Set-MpPreference -DisableRealtimeMonitoring $false
-```
-
-### 4. 验证
-确认桌面已有 LightSwitch.exe，双击即可运行。
-首次运行若 SmartScreen 弹窗，点击「仍要运行」即可。
-```
-
 </details>
 
 > **安全说明**：此方法仅临时关闭实时监控（不影响其他安全功能），下载完成后立即重新开启。本程序为开源项目，源码见 [GitHub](https://github.com/realhenrylan/LightSwitch-Standalone)。
