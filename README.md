@@ -1,4 +1,4 @@
-# LightSwitch Standalone
+# LightSwitch for Windows
 
 > 基于 Microsoft PowerToys LightSwitch 源码复用的 Windows 自动深浅色主题切换工具。
 >
