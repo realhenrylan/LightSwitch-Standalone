@@ -58,6 +58,9 @@ void MainWindow::CreateControls() {
     CreateWindowW(L"STATIC",L"经度:",WS_VISIBLE|WS_CHILD|SS_LEFT,185,148,50,20,m_hwnd,(HMENU)IDS_LABEL_LON,m_hInst,0);
     m_hLongitude = CreateWindowW(L"EDIT",L"",WS_VISIBLE|WS_CHILD|WS_BORDER|ES_AUTOHSCROLL|WS_TABSTOP,230,145,100,22,m_hwnd,(HMENU)IDC_LONGITUDE,m_hInst,0);
     SendMessageW(m_hLongitude,WM_SETFONT,(WPARAM)f,0);
+    // 子类化经纬度编辑框：拦截回车键，按回车立即触发坐标变更
+    SetWindowSubclass(m_hLatitude, CoordEditProc, 0, (DWORD_PTR)this);
+    SetWindowSubclass(m_hLongitude, CoordEditProc, 0, (DWORD_PTR)this);
     CreateWindowW(L"BUTTON",L"☀ 手动切换为亮色",WS_VISIBLE|WS_CHILD|BS_PUSHBUTTON|WS_TABSTOP,20,185,150,28,m_hwnd,(HMENU)IDC_BTN_TOGGLE_LIGHT,m_hInst,0);
     SendMessageW(m_hLightTime,WM_SETFONT,(WPARAM)f,0);
     CreateWindowW(L"BUTTON",L"☾ 手动切换为暗色",WS_VISIBLE|WS_CHILD|BS_PUSHBUTTON|WS_TABSTOP,185,185,150,28,m_hwnd,(HMENU)IDC_BTN_TOGGLE_DARK,m_hInst,0);
@@ -150,4 +153,13 @@ LRESULT MainWindow::HandleMessage(HWND h,UINT msg,WPARAM w,LPARAM l) {
         case WM_CLOSE: Hide(); return 0;
     }
     return DefWindowProcW(h,msg,w,l);
+}
+// 经纬度编辑框子类化回调：按回车立即触发坐标变更
+LRESULT CALLBACK MainWindow::CoordEditProc(HWND h, UINT msg, WPARAM w, LPARAM l, UINT_PTR uid, DWORD_PTR refData) {
+    if (msg == WM_KEYDOWN && w == VK_RETURN) {
+        MainWindow* p = (MainWindow*)refData;
+        if (p) p->OnCoordinatesChanged();
+        return 0; // 已处理，不传递给原编辑框
+    }
+    return DefSubclassProc(h, msg, w, l);
 }

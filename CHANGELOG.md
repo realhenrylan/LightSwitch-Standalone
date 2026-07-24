@@ -1,5 +1,13 @@
 # 变更日志
 
+## [v1.0.3] — 2026-07-24
+
+### 🐛 修复
+
+- **修改经纬度后日出日落时间更新延迟** — `EvaluateAndApplyIfNeeded()` 使用 `lastEvaluatedDay` 做每日缓存，同一天内修改经纬度不会触发 `UpdateSunTimes()` 重新计算，导致日出日落时间仍为旧坐标的结果。修复：在 `OnSettingsChanged()` 中将 `lastEvaluatedDay` 重置为 -1，强制重新计算
+
+- **经纬度编辑框支持回车键提交** — 通过 `SetWindowSubclass` 子类化经纬度 Edit 控件，拦截 `VK_RETURN` 按键立即触发 `OnCoordinatesChanged()`，无需等待失去焦点
+
 ## [v1.0.2] — 2026-07-24
 
 ### 📝 文档

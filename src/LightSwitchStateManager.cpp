@@ -14,6 +14,9 @@ LightSwitchStateManager::LightSwitchStateManager() { OutputDebugStringW(L"[LSM] 
 void LightSwitchStateManager::OnSettingsChanged() {
     std::lock_guard<std::mutex> l(_stateMutex);
     if (_state.isManualOverride) _state.isManualOverride = false;
+    // 强制日出日落时间重新计算：设置变更（如经纬度修改）后，
+    // 缓存的 sun times 已过时，必须使 lastEvaluatedDay 失效以触发 UpdateSunTimes()
+    _state.lastEvaluatedDay = -1;
     EvaluateAndApplyIfNeeded();
 }
 void LightSwitchStateManager::OnTick() {

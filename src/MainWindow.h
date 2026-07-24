@@ -26,5 +26,7 @@ private:
     void UpdateStatusBar(const std::wstring& t);
     static int MinutesToHM(int m, wchar_t* buf, size_t sz);
     static int HMToMinutes(const wchar_t* t);
+    // 经纬度编辑框子类化：拦截回车键立即触发坐标变更
+    static LRESULT CALLBACK CoordEditProc(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
 };
 extern MainWindow* g_pMainWindow;
